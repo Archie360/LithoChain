@@ -38,7 +38,7 @@ export const modelLicenses = pgTable("model_licenses", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   modelId: integer("model_id").references(() => models.id),
-  walletAddress: text("wallet_address").notNull(),
+  walletAddress: text("wallet_address"),
   transactionHash: text("transaction_hash").notNull(),
   acquiredAt: timestamp("acquired_at").defaultNow().notNull()
 });
