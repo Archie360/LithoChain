@@ -12,7 +12,7 @@ const randomEthAddress = () => {
 // Helper function to generate wallet-friendly price in both decimal and wei
 const createPrice = (maticValue: number) => {
   const weiValue = ethers.parseEther(maticValue.toString()).toString();
-  return { price: maticValue, priceInWei: weiValue };
+  return { price: maticValue.toString(), priceInWei: weiValue };
 };
 
 async function seed() {
@@ -22,8 +22,14 @@ async function seed() {
     // Check if we already have seed data to avoid duplicating
     const existingUsers = await db.query.users.findMany();
     if (existingUsers.length > 0) {
-      console.log("Database already contains users, skipping seed");
-      return;
+      console.log("Database already contains users, using existing users for new sample data");
+      
+      // Clear existing sample data before adding new ones (BE CAREFUL IN PRODUCTION)
+      console.log("Clearing existing models, jobs, and transactions...");
+      await db.delete(schema.transactions);
+      await db.delete(schema.jobs);
+      await db.delete(schema.modelLicenses);
+      await db.delete(schema.models);
     }
 
     // Create sample users
@@ -48,8 +54,26 @@ async function seed() {
       }
     ];
 
-    console.log("Inserting users...");
-    const insertedUsers = await db.insert(schema.users).values(users).returning();
+    // Use existing users if available, otherwise insert new ones
+    let insertedUsers;
+    if (existingUsers.length > 0) {
+      console.log("Using existing users...");
+      insertedUsers = existingUsers;
+      
+      // Make sure we have at least 3 users as our sample data expects
+      if (insertedUsers.length < 3) {
+        console.log("Not enough existing users, creating more...");
+        // Add more users if needed
+        const additionalUsers = users.slice(insertedUsers.length);
+        if (additionalUsers.length > 0) {
+          const newUsers = await db.insert(schema.users).values(additionalUsers).returning();
+          insertedUsers = [...insertedUsers, ...newUsers];
+        }
+      }
+    } else {
+      console.log("Inserting new users...");
+      insertedUsers = await db.insert(schema.users).values(users).returning();
+    }
     
     // Create model categories
     const categories = [
@@ -72,7 +96,7 @@ async function seed() {
         authorAddress: insertedUsers[2].walletAddress,
         category: "EUV Lithography",
         features: ["Defect detection", "Pattern fidelity", "EUV-optimized"],
-        rating: 4.5,
+        rating: "4.5",
         numReviews: 27,
         contractAddress: randomEthAddress(),
         tokenId: 1,
@@ -87,7 +111,7 @@ async function seed() {
         authorAddress: insertedUsers[2].walletAddress,
         category: "FinFET Process",
         features: ["7nm process", "High aspect ratio", "Production-ready"],
-        rating: 5.0,
+        rating: "5.0",
         numReviews: 32,
         contractAddress: randomEthAddress(),
         tokenId: 2,
@@ -102,7 +126,7 @@ async function seed() {
         authorAddress: insertedUsers[2].walletAddress,
         category: "Multi-Patterning",
         features: ["SADP compatible", "Error reduction", "Yield improvement"],
-        rating: 4.2,
+        rating: "4.2",
         numReviews: 19,
         contractAddress: randomEthAddress(),
         tokenId: 3,
@@ -116,7 +140,7 @@ async function seed() {
         authorAddress: insertedUsers[2].walletAddress,
         category: "Gate Patterning",
         features: ["5nm node", "Variability control", "Metal gate compatible"],
-        rating: 4.7,
+        rating: "4.7",
         numReviews: 23,
         contractAddress: randomEthAddress(),
         tokenId: 4,
@@ -130,7 +154,7 @@ async function seed() {
         authorAddress: insertedUsers[2].walletAddress,
         category: "Line Edge Roughness",
         features: ["Statistical modeling", "Roughness quantification", "Pattern fidelity"],
-        rating: 4.3,
+        rating: "4.3",
         numReviews: 15,
         contractAddress: randomEthAddress(),
         tokenId: 5,
@@ -144,7 +168,7 @@ async function seed() {
         authorAddress: insertedUsers[2].walletAddress,
         category: "DRAM Cell",
         features: ["High density", "Minimal capacitance", "Low leakage"],
-        rating: 4.8,
+        rating: "4.8",
         numReviews: 18,
         contractAddress: randomEthAddress(),
         tokenId: 6,
@@ -160,13 +184,13 @@ async function seed() {
       {
         userId: insertedUsers[0].id,
         modelId: insertedModels[0].id,
-        walletAddress: insertedUsers[0].walletAddress,
+        walletAddress: insertedUsers[0].walletAddress || "", // Handle null values
         transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
       },
       {
         userId: insertedUsers[0].id,
         modelId: insertedModels[3].id,
-        walletAddress: insertedUsers[0].walletAddress,
+        walletAddress: insertedUsers[0].walletAddress || "", // Handle null values
         transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
       }
     ];
@@ -191,7 +215,7 @@ async function seed() {
           iterations: 1000
         },
         maskFileUrl: "https://storage.example.com/masks/job-3892.gds",
-        cost: 0.05,
+        cost: "0.05",
         transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         submittedAt: new Date(Date.now() - 3 * 60 * 60 * 1000) // 3 hours ago
       },
@@ -208,7 +232,7 @@ async function seed() {
           iterations: 2000
         },
         maskFileUrl: "https://storage.example.com/masks/job-3891.gds",
-        cost: 0.08,
+        cost: "0.08",
         transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         submittedAt: new Date(Date.now() - 4 * 60 * 60 * 1000) // 4 hours ago
       },
@@ -226,7 +250,7 @@ async function seed() {
           iterations: 1500
         },
         maskFileUrl: "https://storage.example.com/masks/job-3889.gds",
-        cost: 0.12,
+        cost: "0.12",
         transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         submittedAt: new Date(Date.now() - 6 * 60 * 60 * 1000) // 6 hours ago
       },
@@ -244,7 +268,7 @@ async function seed() {
           iterations: 1200
         },
         maskFileUrl: "https://storage.example.com/masks/job-3880.gds",
-        cost: 0.07,
+        cost: "0.07",
         transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         completedAt: new Date(Date.now() - 1.5 * 24 * 60 * 60 * 1000), // 1.5 days ago
@@ -266,7 +290,7 @@ async function seed() {
           iterations: 1800
         },
         maskFileUrl: "https://storage.example.com/masks/job-3870.gds",
-        cost: 0.09,
+        cost: "0.09",
         transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
         completedAt: new Date(Date.now() - 2.5 * 24 * 60 * 60 * 1000), // 2.5 days ago
@@ -284,7 +308,7 @@ async function seed() {
       {
         userId: insertedUsers[0].id,
         type: "job_payment",
-        amount: 0.12,
+        amount: "0.12",
         amountInWei: ethers.parseEther("0.12").toString(),
         txHash: "0x71C9e33d798C9D13B92d323E65d76859bFdF7Bdace6453Dbde4e31A96c42f9",
         fromAddress: insertedUsers[0].walletAddress,
@@ -298,7 +322,7 @@ async function seed() {
       {
         userId: insertedUsers[0].id,
         type: "model_purchase",
-        amount: 0.18,
+        amount: "0.18",
         amountInWei: ethers.parseEther("0.18").toString(),
         txHash: "0x93B60F19Bd723A128D69d63a84DcBBBdA2578B2ace6453Dbde4e31A96c42f9",
         fromAddress: insertedUsers[0].walletAddress,
@@ -312,7 +336,7 @@ async function seed() {
       {
         userId: insertedUsers[0].id,
         type: "deposit",
-        amount: 1.00,
+        amount: "1.00",
         amountInWei: ethers.parseEther("1.0").toString(),
         txHash: "0x93B60F19Bd70A128D69d63a84DcBBBdA2578B2ace6453Dbde4e31A96c78b2",
         fromAddress: "0x93B6e9F19Bd70A128D69d63a84DcBBBdA2578B2", // External wallet
