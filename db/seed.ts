@@ -93,7 +93,7 @@ async function seed() {
         description: "High precision model for EUV pattern analysis",
         ...createPrice(0.15),
         authorId: insertedUsers[2].id, // expert user
-        authorAddress: insertedUsers[2].walletAddress,
+        authorAddress: insertedUsers[2].walletAddress || "",
         category: "EUV Lithography",
         features: ["Defect detection", "Pattern fidelity", "EUV-optimized"],
         rating: "4.5",
@@ -108,7 +108,7 @@ async function seed() {
         description: "Complete 7nm process with optimized parameters",
         ...createPrice(0.22),
         authorId: insertedUsers[2].id,
-        authorAddress: insertedUsers[2].walletAddress,
+        authorAddress: insertedUsers[2].walletAddress || "",
         category: "FinFET Process",
         features: ["7nm process", "High aspect ratio", "Production-ready"],
         rating: "5.0",
@@ -123,7 +123,7 @@ async function seed() {
         description: "Reduces edge placement errors by up to 35%",
         ...createPrice(0.18),
         authorId: insertedUsers[2].id,
-        authorAddress: insertedUsers[2].walletAddress,
+        authorAddress: insertedUsers[2].walletAddress || "",
         category: "Multi-Patterning",
         features: ["SADP compatible", "Error reduction", "Yield improvement"],
         rating: "4.2",
@@ -137,7 +137,7 @@ async function seed() {
         description: "Optimized gate patterning for 5nm node with variability control",
         ...createPrice(0.20),
         authorId: insertedUsers[2].id,
-        authorAddress: insertedUsers[2].walletAddress,
+        authorAddress: insertedUsers[2].walletAddress || "",
         category: "Gate Patterning",
         features: ["5nm node", "Variability control", "Metal gate compatible"],
         rating: "4.7",
@@ -151,7 +151,7 @@ async function seed() {
         description: "Advanced analysis of line edge roughness with statistical modeling",
         ...createPrice(0.12),
         authorId: insertedUsers[2].id,
-        authorAddress: insertedUsers[2].walletAddress,
+        authorAddress: insertedUsers[2].walletAddress || "",
         category: "Line Edge Roughness",
         features: ["Statistical modeling", "Roughness quantification", "Pattern fidelity"],
         rating: "4.3",
@@ -165,7 +165,7 @@ async function seed() {
         description: "Optimized patterning solution for high-density DRAM cells",
         ...createPrice(0.25),
         authorId: insertedUsers[2].id,
-        authorAddress: insertedUsers[2].walletAddress,
+        authorAddress: insertedUsers[2].walletAddress || "",
         category: "DRAM Cell",
         features: ["High density", "Minimal capacitance", "Low leakage"],
         rating: "4.8",
@@ -311,7 +311,7 @@ async function seed() {
         amount: "0.12",
         amountInWei: ethers.parseEther("0.12").toString(),
         txHash: "0x71C9e33d798C9D13B92d323E65d76859bFdF7Bdace6453Dbde4e31A96c42f9",
-        fromAddress: insertedUsers[0].walletAddress,
+        fromAddress: insertedUsers[0].walletAddress || "",
         toAddress: "0x0000000000000000000000000000000000000001", // Contract address
         jobId: insertedJobs[2].id,
         metadata: {
@@ -325,8 +325,8 @@ async function seed() {
         amount: "0.18",
         amountInWei: ethers.parseEther("0.18").toString(),
         txHash: "0x93B60F19Bd723A128D69d63a84DcBBBdA2578B2ace6453Dbde4e31A96c42f9",
-        fromAddress: insertedUsers[0].walletAddress,
-        toAddress: insertedUsers[2].walletAddress, // Author's address
+        fromAddress: insertedUsers[0].walletAddress || "",
+        toAddress: insertedUsers[2].walletAddress || "", // Author's address
         modelId: insertedModels[2].id,
         metadata: {
           modelName: "Multi-Patterning Optimization"
@@ -340,7 +340,7 @@ async function seed() {
         amountInWei: ethers.parseEther("1.0").toString(),
         txHash: "0x93B60F19Bd70A128D69d63a84DcBBBdA2578B2ace6453Dbde4e31A96c78b2",
         fromAddress: "0x93B6e9F19Bd70A128D69d63a84DcBBBdA2578B2", // External wallet
-        toAddress: insertedUsers[0].walletAddress,
+        toAddress: insertedUsers[0].walletAddress || "",
         metadata: {
           from: "External Wallet"
         },
