@@ -26,7 +26,7 @@ const Web3Context = createContext<Web3ContextValue>({
   chainId: undefined,
   balance: "0.000",
   connect: async () => {},
-  disconnect: () => {},
+  disconnect: async () => {},
   isConnected: false,
   isConnecting: false,
   provider: null,

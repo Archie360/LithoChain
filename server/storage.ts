@@ -831,9 +831,11 @@ class StorageService {
   // Authentication
   async verifyWalletSignature(address: string, signature: string, message: string): Promise<boolean> {
     try {
-      // In a real application, we'd use ethers.js to verify the signature
-      // For simplicity, we'll just return true for now
-      return true;
+      // Use ethers.js to recover the address from the signature
+      const recoveredAddress = ethers.verifyMessage(message, signature);
+      
+      // Compare the recovered address with the claimed address (case-insensitive)
+      return recoveredAddress.toLowerCase() === address.toLowerCase();
     } catch (error) {
       console.error("Error verifying wallet signature:", error);
       return false;
