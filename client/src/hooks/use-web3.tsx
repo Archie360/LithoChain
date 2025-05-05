@@ -2,12 +2,19 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { ethers } from "ethers";
 import { formatEther } from "@/lib/utils";
 
+// Add MetaMask ethereum provider to window interface
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
 interface Web3ContextValue {
   account: string | undefined;
   chainId: number | undefined;
   balance: string;
   connect: () => Promise<void>;
-  disconnect: () => void;
+  disconnect: () => Promise<void>;
   isConnected: boolean;
   isConnecting: boolean;
   provider: ethers.BrowserProvider | null;
@@ -72,13 +79,39 @@ export const Web3Provider = ({ children }: Web3ProviderProps) => {
       
       const accounts = await provider.send("eth_requestAccounts", []);
       const address = accounts[0];
+      
+      // Get signer for signature
+      const signer = await provider.getSigner();
+      setSigner(signer);
+      
+      // Create message to sign
+      const message = `Sign this message to authenticate with LithoChain: ${Date.now()}`;
+      
+      // Request signature from user
+      const signature = await signer.signMessage(message);
+      
+      // Send to backend for verification and session creation
+      const response = await fetch('/api/auth/wallet/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          address,
+          signature,
+          message
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to authenticate with server');
+      }
+      
+      // Set account info after successful authentication
       setAccount(address);
       
       const network = await provider.getNetwork();
       setChainId(Number(network.chainId));
-      
-      const signer = await provider.getSigner();
-      setSigner(signer);
       
       const balanceWei = await provider.getBalance(address);
       setBalance(formatEther(balanceWei.toString()).substring(0, 5));
@@ -93,12 +126,25 @@ export const Web3Provider = ({ children }: Web3ProviderProps) => {
   };
 
   // Disconnect wallet
-  const disconnect = () => {
-    setAccount(undefined);
-    setChainId(undefined);
-    setBalance("0.000");
-    setSigner(null);
-    localStorage.removeItem("wallet_connected");
+  const disconnect = async () => {
+    try {
+      // Call backend to clear session
+      await fetch('/api/auth/wallet/disconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error("Error disconnecting from server:", error);
+    } finally {
+      // Clear local state
+      setAccount(undefined);
+      setChainId(undefined);
+      setBalance("0.000");
+      setSigner(null);
+      localStorage.removeItem("wallet_connected");
+    }
   };
 
   // Update account details when events occur

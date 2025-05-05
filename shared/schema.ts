@@ -3,6 +3,13 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
 
+// Sessions table for express-session
+export const sessions = pgTable("session", {
+  sid: text("sid").primaryKey(),
+  sess: json("sess").notNull(),
+  expire: timestamp("expire", { precision: 6 }).notNull()
+});
+
 // Users table
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
