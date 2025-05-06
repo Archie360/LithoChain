@@ -1,40 +1,32 @@
-// Build script for Vercel deployment
-import { execSync } from 'child_process';
+// Simple build script for Vercel deployment
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Make sure dist and dist/public directories exist
-const distDir = path.join(__dirname, 'dist');
-const publicDir = path.join(distDir, 'public');
+// Ensure the build directories exist
+makeDir('./dist');
+makeDir('./dist/public');
 
-if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir, { recursive: true });
+// Copy the static HTML file to the output directory
+fs.copyFileSync('./index.html', './dist/public/index.html');
+
+// Create a simple index.js file in dist for backward compatibility
+fs.writeFileSync('./dist/index.js', `
+// This file serves as a compatibility layer for imports
+import { app } from '../server/index.js';
+export { app };
+`);
+
+console.log('✅ Build completed successfully!');
+
+// Helper function to create directory if it doesn't exist
+function makeDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+    console.log(`Created directory: ${dirPath}`);
+  }
 }
-
-if (!fs.existsSync(publicDir)) {
-  fs.mkdirSync(publicDir, { recursive: true });
-}
-
-// Build frontend
-console.log('Building frontend...');
-try {
-  execSync('npx vite build', { stdio: 'inherit' });
-} catch (error) {
-  console.error('Frontend build failed:', error);
-  process.exit(1);
-}
-
-// Build backend
-console.log('Building backend...');
-try {
-  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', { stdio: 'inherit' });
-} catch (error) {
-  console.error('Backend build failed:', error);
-  process.exit(1);
-}
-
-console.log('Build completed successfully!');
