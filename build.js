@@ -7,6 +7,14 @@ import { execSync } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Run Vite build
+console.log('Building client...');
+execSync('vite build', { stdio: 'inherit' });
+
+// Build server
+console.log('Building server...');
+execSync('esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist/server', { stdio: 'inherit' });
+
 // Ensure the build directories exist
 makeDir('./dist');
 makeDir('./dist/public');

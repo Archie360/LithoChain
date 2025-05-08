@@ -20,8 +20,20 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'lithochain_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    sameSite: 'lax'
+  }
 }));
+
+// Add CORS headers for Vercel deployment
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -53,44 +65,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// Only start the server if this is being run directly, not when imported by Vercel
-if (process.env.VERCEL_ENV !== 'production') {
-  (async () => {
+// Register routes and setup static serving
+(async () => {
+  await registerRoutes(app);
+  
+  // In development, use Vite middleware
+  if (process.env.NODE_ENV === 'development') {
     const server = await registerRoutes(app);
-
-    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-
-      res.status(status).json({ message });
-      throw err;
-    });
-
-    // importantly only setup vite in development and after
-    // setting up all the other routes so the catch-all route
-    // doesn't interfere with the other routes
-    if (app.get("env") === "development") {
-      await setupVite(app, server);
-    } else {
-      serveStatic(app);
-    }
-
-    // ALWAYS serve the app on port 5000
-    // this serves both the API and the client.
-    // It is the only port that is not firewalled.
-    const port = 5000;
-    server.listen({
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    }, () => {
-      log(`serving on port ${port}`);
-    });
-  })();
-} else {
-  // For Vercel deployment, we register routes but don't start the server
-  (async () => {
-    await registerRoutes(app);
+    await setupVite(app, server);
+  } else {
+    // In production, serve static files
     serveStatic(app);
-  })();
-}
+  }
+})();
+
+// Error handling middleware
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  res.status(status).json({ message });
+  if (process.env.NODE_ENV === 'development') {
+    console.error(err);
+  }
+});
+
+// Export the handler for Vercel
+export default app;
