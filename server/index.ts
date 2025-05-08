@@ -4,6 +4,15 @@ import { setupVite, serveStatic, log } from "./vite";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "@db";
+import passport from "passport";
+import { setupGoogleAuth } from "./auth";
+
+// Extend the session interface to include walletAddress
+declare module 'express-session' {
+  interface SessionData {
+    walletAddress?: string;
+  }
+}
 
 // Export the express app for serverless use
 export const app = express();
@@ -26,6 +35,13 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
+
+// Initialize passport for authentication
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Setup Google authentication
+setupGoogleAuth();
 
 // Add CORS headers for Vercel deployment
 app.use((req, res, next) => {

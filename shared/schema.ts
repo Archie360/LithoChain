@@ -1,6 +1,6 @@
-import { pgTable, text, serial, integer, timestamp, decimal, json, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, decimal, json, boolean, date } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { relations } from "drizzle-orm";
+import { relations, sql, eq } from "drizzle-orm";
 import { z } from "zod";
 
 // Sessions table for express-session
@@ -17,6 +17,10 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   walletAddress: text("wallet_address").unique(),
   email: text("email"),
+  name: text("name"), // User's full name
+  avatar: text("avatar"), // User's profile picture URL
+  googleId: text("google_id").unique(), // Google ID for OAuth
+  lastLogin: timestamp("last_login"), // Last login timestamp
   createdAt: timestamp("created_at").defaultNow().notNull()
 });
 

@@ -5,6 +5,7 @@ import multer from "multer";
 import { z } from "zod";
 import { jobSubmissionSchema } from "@shared/schema";
 import { formatEther, parseEther } from "ethers";
+import passport from "passport";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -307,6 +308,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     res.json({ success: true });
+  });
+
+  // Google auth routes
+  app.get(`${apiPrefix}/auth/google`, (req, res, next) => {
+    passport.authenticate('google', { 
+      scope: ['profile', 'email'] 
+    })(req, res, next);
+  });
+  
+  app.get(`${apiPrefix}/auth/google/callback`, 
+    passport.authenticate('google', { 
+      failureRedirect: '/login?error=google-auth'
+    }),
+    (req, res) => {
+      res.redirect('/');
+    }
+  );
+  
+  app.get(`${apiPrefix}/auth/current-user`, (req, res) => {
+    if (!req.session || !req.session.walletAddress && !req.isAuthenticated()) {
+      return res.status(401).json({ isAuthenticated: false });
+    }
+    
+    const user = req.user as any;
+    const response = {
+      isAuthenticated: true,
+      walletAddress: req.session.walletAddress,
+      ...(user && { 
+        id: user.id,
+        name: user.name || user.username,
+        email: user.email,
+        avatar: user.avatar
+      })
+    };
+    
+    res.json(response);
+  });
+  
+  app.post(`${apiPrefix}/auth/logout`, (req, res) => {
+    if (req.session) {
+      delete req.session.walletAddress;
+    }
+    
+    req.logout((err) => {
+      if (err) {
+        console.error('Error during logout:', err);
+        return res.status(500).json({ message: 'Failed to logout' });
+      }
+      res.json({ success: true });
+    });
   });
 
   const httpServer = createServer(app);
