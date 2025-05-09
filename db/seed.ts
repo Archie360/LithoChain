@@ -173,6 +173,51 @@ async function seed() {
         contractAddress: randomEthAddress(),
         tokenId: 6,
         metadataUri: "ipfs://Qm123456789abcdef/6"
+      },
+      {
+        name: "Quantum Dot Patterning Simulation",
+        description: "Advanced model for quantum dot arrays with sub-10nm precision",
+        ...createPrice(0.30),
+        authorId: insertedUsers[2].id,
+        authorAddress: insertedUsers[2].walletAddress || "",
+        category: "EUV Lithography",
+        features: ["Quantum dot arrays", "Sub-10nm precision", "High accuracy"],
+        rating: "4.9",
+        numReviews: 21,
+        contractAddress: randomEthAddress(),
+        tokenId: 7,
+        metadataUri: "ipfs://Qm123456789abcdef/7",
+        imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475"
+      },
+      {
+        name: "3D FinFET Optimization",
+        description: "Complete 3D modeling of FinFET structures with stress analysis",
+        ...createPrice(0.35),
+        authorId: insertedUsers[2].id,
+        authorAddress: insertedUsers[2].walletAddress || "",
+        category: "FinFET Process",
+        features: ["3D modeling", "Stress analysis", "Performance optimization"],
+        rating: "4.8",
+        numReviews: 17,
+        contractAddress: randomEthAddress(),
+        tokenId: 8,
+        metadataUri: "ipfs://Qm123456789abcdef/8",
+        imageUrl: "https://images.unsplash.com/photo-1486825586573-7131f7991bdd"
+      },
+      {
+        name: "High-k Metal Gate Simulation",
+        description: "Comprehensive modeling of High-k Metal Gate structures for advanced nodes",
+        ...createPrice(0.28),
+        authorId: insertedUsers[2].id,
+        authorAddress: insertedUsers[2].walletAddress || "",
+        category: "Gate Patterning",
+        features: ["High-k dielectrics", "Metal gate", "Low leakage"],
+        rating: "4.7",
+        numReviews: 15,
+        contractAddress: randomEthAddress(),
+        tokenId: 9,
+        metadataUri: "ipfs://Qm123456789abcdef/9",
+        imageUrl: "https://images.unsplash.com/photo-1573500215565-50c71e941279"
       }
     ];
 
@@ -297,6 +342,72 @@ async function seed() {
         resultId: "RES-3870",
         resultFileUrl: "https://storage.example.com/results/res-3870.zip",
         resultImageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
+      },
+      {
+        jobId: "JOB-3895",
+        userId: insertedUsers[0].id,
+        modelId: insertedModels[6].id, // Quantum Dot Patterning
+        name: "Quantum computing qubit array simulation",
+        status: "completed",
+        progress: 100,
+        parameters: {
+          resolution: 2,
+          wavelength: 13.5,
+          numericalAperture: 0.95,
+          iterations: 3000
+        },
+        maskFileUrl: "https://storage.example.com/masks/job-3895.gds",
+        cost: "0.15",
+        transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+        submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+        completedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+        resultId: "RES-3895",
+        resultFileUrl: "https://storage.example.com/results/res-3895.gds",
+        resultImageUrl: "https://images.unsplash.com/photo-1535378917042-10a22c95931a"
+      },
+      {
+        jobId: "JOB-3896",
+        userId: insertedUsers[0].id,
+        modelId: insertedModels[7].id, // 3D FinFET Optimization
+        name: "5nm FinFET stress optimization",
+        status: "completed",
+        progress: 100,
+        parameters: {
+          resolution: 1,
+          wavelength: 13.5,
+          numericalAperture: 0.98,
+          iterations: 5000,
+          stressSimulation: true,
+          temperatureRange: [-50, 125]
+        },
+        maskFileUrl: "https://storage.example.com/masks/job-3896.gds",
+        cost: "0.22",
+        transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+        submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+        completedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
+        resultId: "RES-3896",
+        resultFileUrl: "https://storage.example.com/results/res-3896.gds",
+        resultImageUrl: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd"
+      },
+      {
+        jobId: "JOB-3897",
+        userId: insertedUsers[1].id, // Different user
+        modelId: insertedModels[8].id, // High-k Metal Gate Simulation
+        name: "High-performance CPU gate design",
+        status: "failed",
+        progress: 67,
+        parameters: {
+          resolution: 3,
+          wavelength: 13.5,
+          numericalAperture: 0.93,
+          iterations: 2500,
+          materialStack: ["SiO2", "HfO2", "TiN", "W"]
+        },
+        maskFileUrl: "https://storage.example.com/masks/job-3897.gds",
+        cost: "0.18",
+        transactionHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+        submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+        completedAt: new Date(Date.now() - 2.5 * 24 * 60 * 60 * 1000) // 2.5 days ago
       }
     ];
 
@@ -343,6 +454,66 @@ async function seed() {
         toAddress: insertedUsers[0].walletAddress || "",
         metadata: {
           from: "External Wallet"
+        },
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+      },
+      {
+        userId: insertedUsers[0].id,
+        type: "model_purchase",
+        amount: "0.30",
+        amountInWei: ethers.parseEther("0.30").toString(),
+        txHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+        fromAddress: insertedUsers[0].walletAddress || "",
+        toAddress: insertedUsers[2].walletAddress || "",
+        modelId: insertedModels[6].id, // Quantum Dot model
+        status: "confirmed",
+        metadata: {
+          modelName: "Quantum Dot Patterning Simulation"
+        },
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+      },
+      {
+        userId: insertedUsers[0].id,
+        type: "job_payment",
+        amount: "0.15",
+        amountInWei: ethers.parseEther("0.15").toString(),
+        txHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+        fromAddress: insertedUsers[0].walletAddress || "",
+        toAddress: "0x7F284AE35463C87FeB36780DE0e29AE2A218c0F4", // Platform address
+        jobId: insertedJobs[3].id, // Quantum computing job
+        status: "confirmed",
+        metadata: {
+          jobName: "Quantum computing qubit array simulation"
+        },
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
+      },
+      {
+        userId: insertedUsers[0].id,
+        type: "model_purchase",
+        amount: "0.35",
+        amountInWei: ethers.parseEther("0.35").toString(),
+        txHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+        fromAddress: insertedUsers[0].walletAddress || "",
+        toAddress: insertedUsers[2].walletAddress || "",
+        modelId: insertedModels[7].id, // 3D FinFET model
+        status: "confirmed",
+        metadata: {
+          modelName: "3D FinFET Optimization"
+        },
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
+      },
+      {
+        userId: insertedUsers[1].id,
+        type: "job_payment",
+        amount: "0.18",
+        amountInWei: ethers.parseEther("0.18").toString(),
+        txHash: "0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+        fromAddress: insertedUsers[1].walletAddress || "",
+        toAddress: "0x7F284AE35463C87FeB36780DE0e29AE2A218c0F4", // Platform address
+        jobId: insertedJobs[5].id, // High-performance CPU job
+        status: "confirmed",
+        metadata: {
+          jobName: "High-performance CPU gate design"
         },
         createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
       }
