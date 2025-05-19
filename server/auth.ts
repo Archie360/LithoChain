@@ -1,4 +1,4 @@
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as GoogleStrategy, Profile, GoogleCallbackParameters } from 'passport-google-oauth20';
 import passport from 'passport';
 import { NextFunction, Request, Response } from 'express';
 import { db } from '@db';
@@ -20,10 +20,22 @@ export function setupGoogleAuth() {
       {
         clientID: process.env.GOOGLE_CLIENT_ID || '',
         clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-        callbackURL: '/api/auth/google/callback'
+        callbackURL: '/api/auth/google/callback',
+        passReqToCallback: true
       },
-      async (accessToken, refreshToken, profile: GoogleProfile, done) => {
+      async (
+        req: Request,
+        accessToken: string,
+        refreshToken: string,
+        params: GoogleCallbackParameters,
+        profile: Profile,
+        done: (error: any, user?: any) => void
+      ) => {
         try {
+          // Ensure profile.emails is defined
+          if (!profile.emails || profile.emails.length === 0) {
+            return done(new Error('No email found in Google profile'));
+          }
           // Check if user exists
           const existingUser = await db
             .select()

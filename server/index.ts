@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -6,6 +7,12 @@ import connectPgSimple from "connect-pg-simple";
 import { pool } from "@db";
 import passport from "passport";
 import { setupGoogleAuth } from "./auth";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Extend the session interface to include walletAddress
 declare module 'express-session' {
@@ -83,14 +90,21 @@ app.use((req, res, next) => {
 
 // Register routes and setup static serving
 (async () => {
-  await registerRoutes(app);
+  // Register API routes and get the server instance
+  const server = await registerRoutes(app);
   
-  // In development, use Vite middleware
+  // Setup client serving based on environment
   if (process.env.NODE_ENV === 'development') {
-    const server = await registerRoutes(app);
+    // In development, use Vite middleware
     await setupVite(app, server);
   } else {
     // In production, serve static files
+    const distPath = path.resolve(__dirname, "public");
+    if (!fs.existsSync(distPath)) {
+      throw new Error(
+        `Could not find the build directory: ${distPath}, make sure to build the client first`,
+      );
+    }
     serveStatic(app);
   }
 })();
