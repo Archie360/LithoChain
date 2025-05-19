@@ -54,12 +54,106 @@ const Marketplace = () => {
   const queryClient = useQueryClient();
   const { isConnected } = useWeb3();
   
-  const { data: modelsData = { models: [], categories: [] }, isLoading } = useQuery({
+  const { data: modelsDataRaw = { models: [], categories: [] }, isLoading } = useQuery({
     queryKey: ['/api/models', { showOwned, priceRange, categoryFilter, searchTerm }],
   });
+  const modelsData = modelsDataRaw as { models: Model[]; categories: string[] };
   
-  const models = modelsData.models || [];
-  const categories = modelsData.categories || [];
+  // Sample models for demo purposes
+  const sampleModels: Model[] = [
+    {
+      id: "sample-1",
+      name: "FinFET Process Simulation",
+      description: "Complete 7nm process with optimized parameters",
+      price: "0.22000 MATIC",
+      priceInWei: "220000000000000000",
+      rating: 5,
+      category: "FinFET Process",
+      features: ["7nm process", "High aspect ratio", "Production-ready"],
+      author: "semiconductor_expert",
+      authorAddress: "0x000...001",
+      licensedToUser: false,
+      imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80"
+    },
+    {
+      id: "sample-2",
+      name: "DRAM Cell Patterning",
+      description: "Optimized patterning solution for high-density DRAM cells",
+      price: "0.25000 MATIC",
+      priceInWei: "250000000000000000",
+      rating: 4.5,
+      category: "DRAM Cell",
+      features: ["High density", "Minimal capacitance", "Low leakage"],
+      author: "semiconductor_expert",
+      authorAddress: "0x000...001",
+      licensedToUser: false,
+      imageUrl: undefined
+    },
+    {
+      id: "sample-3",
+      name: "Advanced Gate Pattern v2",
+      description: "Optimized gate patterning for 5nm node with variability control",
+      price: "0.20000 MATIC",
+      priceInWei: "200000000000000000",
+      rating: 4.7,
+      category: "Gate Patterning",
+      features: ["5nm node", "Variability control", "Metal gate compatible"],
+      author: "semiconductor_expert",
+      authorAddress: "0x000...001",
+      licensedToUser: false,
+      imageUrl: undefined
+    },
+    {
+      id: "sample-4",
+      name: "Advanced EUV Mask Defect Analysis",
+      description: "High precision model for EUV pattern analysis",
+      price: "0.23000 MATIC",
+      priceInWei: "230000000000000000",
+      rating: 4.8,
+      category: "EUV Lithography",
+      features: ["EUV mask", "Defect analysis", "Pattern accuracy"],
+      author: "semiconductor_expert",
+      authorAddress: "0x000...001",
+      licensedToUser: false,
+      imageUrl: undefined
+    },
+    {
+      id: "sample-5",
+      name: "Line Edge Roughness Analysis",
+      description: "Advanced analysis of line edge roughness with statistical modeling",
+      price: "0.21000 MATIC",
+      priceInWei: "210000000000000000",
+      rating: 4.6,
+      category: "Line Edge Roughness",
+      features: ["Statistical modeling", "Edge roughness", "High accuracy"],
+      author: "semiconductor_expert",
+      authorAddress: "0x000...001",
+      licensedToUser: false,
+      imageUrl: undefined
+    },
+    {
+      id: "sample-6",
+      name: "Multi-Patterning Optimization",
+      description: "Reduces edge placement errors by up to 35%",
+      price: "0.20000 MATIC",
+      priceInWei: "200000000000000000",
+      rating: 4.4,
+      category: "Multi-Patterning",
+      features: ["EPE reduction", "CADR compatible", "Multi-patterning"],
+      author: "semiconductor_expert",
+      authorAddress: "0x000...001",
+      licensedToUser: false,
+      imageUrl: undefined
+    }
+  ];
+  
+  // Merge sample models with fetched models, avoiding duplicate IDs
+  const models: Model[] = [
+    ...sampleModels.filter(sample => !modelsData.models.some((m: Model) => m.id === sample.id)),
+    ...(modelsData.models || [])
+  ];
+  
+  const categories: string[] = modelsData.categories || [];
   
   const { mutate: purchaseModel, isPending: isPurchasing } = useMutation({
     mutationFn: async (modelId: string) => {
